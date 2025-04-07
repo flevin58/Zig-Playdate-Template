@@ -1,5 +1,5 @@
 name=Hello Zig
-author=Daniel Bokser
+author=Fernando Levin
 description=A small demo of the Zig API
-bundleID=com.panic.hellozigapi
+bundleID=com.github.flevin58
 imagePath=assets/images

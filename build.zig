@@ -1,7 +1,7 @@
 const std = @import("std");
 const builtin = @import("builtin");
 
-const name = "hello-zig";
+const name = "mygame";
 pub fn build(b: *std.Build) !void {
     const pdx_file_name = name ++ ".pdx";
     const optimize = b.standardOptimizeOption(.{});
@@ -127,9 +127,9 @@ fn host_or_cross_target(
 ) std.Build.ResolvedTarget {
     const result =
         if (!force_use_cross_target and b.graph.host.result.os.tag == cross_target.os_tag.?)
-        b.graph.host
-    else
-        b.resolveTargetQuery(cross_target);
+            b.graph.host
+        else
+            b.resolveTargetQuery(cross_target);
     return result;
 }
 
