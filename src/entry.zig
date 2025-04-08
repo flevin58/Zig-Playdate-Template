@@ -1,3 +1,4 @@
+/// entry.zig
 /// This is the entry point to the playdate application
 /// DO NOT MODIFY unless you know what you are doing!
 /// Functions here will initialize hw / simulator and will
@@ -40,5 +41,5 @@ pub export fn eventHandler(playdate: *pdapi.PlaydateAPI, event: pdapi.PDSystemEv
 /// calls game.loop() whic is user defined in the game.zig file.
 fn update_and_render(data: ?*anyopaque) callconv(.C) c_int {
     var game: *Game = @ptrCast(@alignCast(data));
-    return if (game.render()) ?1 else 0;
+    return if (game.render() == true) 1 else 0;
 }

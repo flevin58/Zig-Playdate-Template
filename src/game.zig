@@ -12,7 +12,6 @@ const panic_handler = @import("panic_handler.zig");
 const Self = @This();
 
 playdate: *pdapi.PlaydateAPI,
-panic: panic_handler.panicFunction,
 zig_image: *pdapi.LCDBitmap,
 font: *pdapi.LCDFont,
 image_width: c_int,
@@ -23,7 +22,6 @@ image_height: c_int,
 pub fn init(playdate: *pdapi.PlaydateAPI) Self {
     var self = Self{
         .playdate = playdate,
-        .panic = panic_handler.panic,
         .zig_image = playdate.graphics.loadBitmap("assets/images/zig-playdate", null).?,
         .font = undefined,
         .image_width = 0,
@@ -52,7 +50,7 @@ pub fn render(self: Self) bool {
     // READ EVENTS AND UPDATE GAME STATE
     // ---------------------------------
     var draw_mode: pdapi.LCDBitmapDrawMode = .DrawModeCopy;
-    var clear_color: pdapi.LCDSolidColor = .ColorBlack;
+    var clear_color: pdapi.LCDSolidColor = .ColorWhite;
     var buttons: pdapi.PDButtons = 0;
     self.playdate.system.getButtonState(&buttons, null, null);
     if (buttons & pdapi.BUTTON_A != 0) {
@@ -64,8 +62,8 @@ pub fn render(self: Self) bool {
     // RENDER TO THE SCREEN
     // --------------------
     const gfx = self.playdate.graphics;
-    gfx.setDrawMode(self.draw_mode);
-    gfx.clear(@intCast(@intFromEnum(self.clear_color)));
+    gfx.setDrawMode(draw_mode);
+    gfx.clear(@intCast(@intFromEnum(clear_color)));
     const to_draw = "Hold Ⓐ";
     const text_width =
         gfx.getTextWidth(
@@ -87,4 +85,9 @@ pub fn render(self: Self) bool {
     _ = pixel_width;
 
     return true;
+}
+
+/// Our own simplified panic() function, with just a message.
+pub fn panic(self: Self, msg: []const u8) noreturn {
+    panic_handler.panic(self.playdate, msg, null, null);
 }
