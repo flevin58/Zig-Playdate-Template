@@ -11,7 +11,7 @@
             "preLaunchTask": "build",
             "program": "${env:PLAYDATE_SDK_PATH}\\bin\\PlaydateSimulator.exe",
             "args": [
-                "zig-out\\bin\\mygame.pdx"
+                "${workspaceRoot}\\zig-out\\bin\\mygame.pdx"
             ],
             "symbolSearchPath": "${env:PLAYDATE_SDK_PATH}\\bin\\PlaydateSimulator.exe;${workspaceFolder}\\zig-out\\mygame.pdx"
         }

@@ -11,7 +11,7 @@
             "preLaunchTask": "build",
             "program": "${env:PLAYDATE_SDK_PATH}/bin/Playdate Simulator.app/Contents/MacOS/Playdate Simulator",
             "args": [
-                "zig-out/mygame.pdx"
+                "${workspaceRoot}/zig-out/mygame.pdx"
             ],
             "cwd": "${workspaceFolder}"
         }
