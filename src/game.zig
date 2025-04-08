@@ -2,8 +2,8 @@
 /// User-implemented Game struct
 /// Here you have to define ALL fields that will be used by the game
 /// Those fields MUST then be initialized in the init() function.
-/// The playdev will then call the render() function at every frame to
-/// determine if the screen needs update (true) or no drawing is necessary (false).
+/// The playdev will then call the update() function at every frame to
+/// determine if the screen needs update (true) or if no drawing is necessary (false).
 /// No other function is needed to implement a game.
 const std = @import("std");
 const pdapi = @import("playdate_api_definitions.zig");
@@ -44,7 +44,7 @@ pub fn init(playdate: *pdapi.PlaydateAPI) Self {
 /// Return true if the frame shoud be rendered (due to changes) or false if not.
 /// You may define other functions and structs with functions (like sprites) but
 /// at the end of the day everything is called from this function.
-pub fn render(self: Self) bool {
+pub fn update(self: Self) bool {
 
     // ---------------------------------
     // READ EVENTS AND UPDATE GAME STATE
