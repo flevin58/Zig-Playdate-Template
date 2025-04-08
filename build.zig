@@ -50,7 +50,7 @@ pub fn build(b: *std.Build) !void {
     }));
     const elf = b.addExecutable(.{
         .name = "pdex.elf",
-        .root_source_file = b.path("src/main.zig"),
+        .root_source_file = b.path("src/entry.zig"),
         .target = playdate_target,
         .optimize = optimize,
         .pic = true,
@@ -142,7 +142,7 @@ fn compile_simulator_binary(
     const os_tag = target.result.os.tag;
     const lib = b.addSharedLibrary(.{
         .name = "pdex",
-        .root_source_file = b.path("src/main.zig"),
+        .root_source_file = b.path("src/entry.zig"),
         .optimize = optimize,
         .target = target,
     });

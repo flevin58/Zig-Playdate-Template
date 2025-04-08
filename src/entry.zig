@@ -1,0 +1,44 @@
+/// This is the entry point to the playdate application
+/// DO NOT MODIFY unless you know what you are doing!
+/// Functions here will initialize hw / simulator and will
+/// automagically instantiate your Game struct in 'game.zig'
+/// Note: the playdate will call game.render() at each frame
+const std = @import("std");
+const pdapi = @import("playdate_api_definitions.zig");
+const Game = @import("game.zig");
+const panic_handler = @import("panic_handler.zig");
+
+pub var gamePtr: *Game = undefined;
+
+pub export fn eventHandler(playdate: *pdapi.PlaydateAPI, event: pdapi.PDSystemEvent, arg: u32) callconv(.C) c_int {
+    _ = arg;
+    switch (event) {
+        .EventInit => {
+            //NOTE: Initalizing the panic handler should be the first thing that is done.
+            //      If a panic happens before calling this, the simulator or hardware will
+            //      just crash with no message.
+            // panic_handler.init(playdate);
+            const game: *Game = @ptrCast(
+                @alignCast(
+                    playdate.system.realloc(
+                        null,
+                        @sizeOf(Game),
+                    ),
+                ),
+            );
+            game.* = Game.init(playdate);
+            gamePtr = game;
+            playdate.system.setUpdateCallback(update_and_render, game);
+        },
+        else => {},
+    }
+    return 1;
+}
+
+/// This is the update callback that is called by the playdate at every frame
+/// Note: we set it up in the .Init event of the eventHandler and it actually
+/// calls game.loop() whic is user defined in the game.zig file.
+fn update_and_render(data: ?*anyopaque) callconv(.C) c_int {
+    var game: *Game = @ptrCast(@alignCast(data));
+    return if (game.render()) ?1 else 0;
+}

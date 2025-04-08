@@ -2,12 +2,15 @@ const std = @import("std");
 const pdapi = @import("playdate_api_definitions.zig");
 const builtin = @import("builtin");
 
-var global_playate: *pdapi.PlaydateAPI = undefined;
-pub fn init(playdate: *pdapi.PlaydateAPI) void {
-    global_playate = playdate;
-}
+pub const panicFunction = *const fn (
+    playdate: *pdapi.PlaydateAPI,
+    msg: []const u8,
+    error_return_trace: ?*std.builtin.StackTrace,
+    return_address: ?usize,
+) noreturn;
 
 pub fn panic(
+    playdate: *pdapi.PlaydateAPI,
     msg: []const u8,
     error_return_trace: ?*std.builtin.StackTrace,
     return_address: ?usize,
@@ -15,7 +18,7 @@ pub fn panic(
     _ = error_return_trace;
     _ = return_address;
 
-    switch (comptime builtin.os.tag) {
+    switch (builtin.os.tag) {
         .freestanding => {
             //Playdate hardware
 
@@ -28,7 +31,7 @@ pub fn panic(
             //We need to know the load address and it doesn't seem to be exactly
             //0x6000_0000 as originally thought
 
-            global_playate.system.@"error"("PANIC: %s", msg.ptr);
+            playdate.system.@"error"("PANIC: %s", msg.ptr);
         },
         else => {
             //playdate simulator
@@ -53,7 +56,7 @@ pub fn panic(
                     debug_info,
                     .no_color,
                     null,
-                ) catch break :b "Unable to dump stack trace: Unknown error writng stack trace";
+                ) catch break :b "Unable to dump stack trace: Unknown error writing stack trace";
 
                 //NOTE: playdate.system.error (and all Playdate APIs that deal with strings) require a null termination
                 const null_char_index = @min(stream.pos, stack_trace_buffer.len - 1);
@@ -61,7 +64,7 @@ pub fn panic(
 
                 break :b &stack_trace_buffer;
             };
-            global_playate.system.@"error"(
+            playdate.system.@"error"(
                 "PANIC: %s\n\n%s",
                 msg.ptr,
                 stack_trace_string.ptr,
