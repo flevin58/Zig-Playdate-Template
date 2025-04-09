@@ -6,7 +6,6 @@
 /// determine if the screen needs update (true) or if no drawing is necessary (false).
 /// No other function is needed to implement a game.
 const std = @import("std");
-const pd = @import("playdate").playdate;
 const pdapi = @import("playdate").pdapi;
 const panic_handler = @import("playdate").panic_handler;
 
