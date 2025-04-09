@@ -9,6 +9,20 @@ const pdapi = @import("playdate").pdapi;
 const panic_handler = @import("playdate").panic_handler;
 const Game = @import("game");
 
+comptime {
+    if (!std.meta.hasMethod(Game, "init") or !std.meta.hasMethod(Game, "update")) {
+        @compileError(
+            \\
+            \\ ==================================================================================================
+            \\ "Game" must implement at least the following two methods:
+            \\    1) init(playdate: *pdapi.PlaydateAPI) Self ---> it will be called once by the playdate api.
+            \\    2) update() bool ---> that be called at every frame and should return true if redraw is needed.
+            \\ ==================================================================================================
+            \\
+        );
+    }
+}
+
 pub export fn eventHandler(playdate: *pdapi.PlaydateAPI, event: pdapi.PDSystemEvent, arg: u32) callconv(.C) c_int {
     _ = arg;
     switch (event) {
