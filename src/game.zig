@@ -40,6 +40,27 @@ pub fn init(playdate: *pdapi.PlaydateAPI) Self {
     return self;
 }
 
+/// Centers the given text at row y
+fn centerText(self: Self, to_draw: *const anyopaque, len: usize, encoding: pdapi.PDStringEncoding, y: ?usize) void {
+    const gfx = self.playdate.graphics;
+    const row = y orelse pdapi.LCD_ROWS / 2;
+    const text_width =
+        gfx.getTextWidth(
+            self.font,
+            to_draw,
+            len,
+            encoding,
+            0,
+        );
+    _ = gfx.drawText(
+        to_draw,
+        len,
+        encoding,
+        @divTrunc(pdapi.LCD_COLUMNS - text_width, 2),
+        @intCast(row - gfx.getFontHeight(self.font)),
+    );
+}
+
 /// The game loop called at every frame by the playdev.
 /// Return true if the frame shoud be rendered (due to changes) or false if not.
 /// You may define other functions and structs with functions (like sprites) but
@@ -65,24 +86,8 @@ pub fn update(self: Self) bool {
     gfx.setDrawMode(draw_mode);
     gfx.clear(@intCast(@intFromEnum(clear_color)));
     const to_draw = "Hold Ⓐ";
-    const text_width =
-        gfx.getTextWidth(
-            self.font,
-            to_draw,
-            to_draw.len,
-            .UTF8Encoding,
-            0,
-        );
-
     gfx.drawBitmap(self.zig_image, 0, 0, .BitmapUnflipped);
-    const pixel_width = gfx.drawText(
-        to_draw,
-        to_draw.len,
-        .UTF8Encoding,
-        @divTrunc(pdapi.LCD_COLUMNS - text_width, 2),
-        pdapi.LCD_ROWS - gfx.getFontHeight(self.font) - 20,
-    );
-    _ = pixel_width;
+    self.centerText(to_draw, to_draw.len, .UTF8Encoding, pdapi.LCD_ROWS);
 
     return true;
 }
