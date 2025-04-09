@@ -6,8 +6,9 @@
 /// determine if the screen needs update (true) or if no drawing is necessary (false).
 /// No other function is needed to implement a game.
 const std = @import("std");
-const pdapi = @import("playdate_api_definitions.zig");
-const panic_handler = @import("panic_handler.zig");
+const pd = @import("playdate").playdate;
+const pdapi = @import("playdate").pdapi;
+const panic_handler = @import("playdate").panic_handler;
 
 const Self = @This();
 

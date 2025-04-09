@@ -48,9 +48,27 @@ pub fn build(b: *std.Build) !void {
         .arch_os_abi = "thumb-freestanding-eabihf",
         .cpu_features = "cortex_m7+vfp4d16sp",
     }));
+
+    // Let's define the game module. It will be called by the lib in order to se the entry point
+    const game_mod = b.createModule(.{
+        .root_source_file = b.path("src/game.zig"),
+        .target = playdate_target,
+        .optimize = optimize,
+    });
+
+    // Let's define the playdate module. It will be called by the game module
+    const playdate_mod = b.createModule(.{
+        .root_source_file = b.path("playdate/api/api.zig"),
+        .target = playdate_target,
+        .optimize = optimize,
+    });
+
+    // Let's allow game to import playdate!
+    game_mod.addImport("playdate", playdate_mod);
+
     const elf = b.addExecutable(.{
         .name = "pdex.elf",
-        .root_source_file = b.path("src/entry.zig"),
+        .root_source_file = b.path("playdate/lib/entry.zig"),
         .target = playdate_target,
         .optimize = optimize,
         .pic = true,
@@ -58,6 +76,9 @@ pub fn build(b: *std.Build) !void {
     });
     elf.link_emit_relocs = true;
     elf.entry = .{ .symbol_name = "eventHandler" };
+
+    elf.root_module.addImport("game", game_mod);
+    elf.root_module.addImport("playdate", playdate_mod);
 
     elf.setLinkerScript(b.path("link_map.ld"));
     if (optimize == .ReleaseFast) {
@@ -142,10 +163,32 @@ fn compile_simulator_binary(
     const os_tag = target.result.os.tag;
     const lib = b.addSharedLibrary(.{
         .name = "pdex",
-        .root_source_file = b.path("src/entry.zig"),
+        .root_source_file = b.path("playdate/lib/entry.zig"),
         .optimize = optimize,
         .target = target,
     });
+
+    // Let's define the game module. It will be called by the lib in order to se the entry point
+    const game_mod = b.createModule(.{
+        .root_source_file = b.path("src/game.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    // Let's define the playdate module. It will be called by the game module
+    const playdate_mod = b.createModule(.{
+        .root_source_file = b.path("playdate/api/api.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    // Let's allow game to import playdate!
+    game_mod.addImport("playdate", playdate_mod);
+
+    // Let's allow lib to import playdate and game!
+    lib.root_module.addImport("playdate", playdate_mod);
+    lib.root_module.addImport("game", game_mod);
+
     const pdex_extension = switch (os_tag) {
         .windows => "dll",
         .macos => "dylib",

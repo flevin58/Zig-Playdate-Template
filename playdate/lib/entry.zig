@@ -5,11 +5,9 @@
 /// automagically instantiate your Game struct in 'game.zig'
 /// Note: the playdate will call game.update() at each frame
 const std = @import("std");
-const pdapi = @import("playdate_api_definitions.zig");
-const Game = @import("game.zig");
-const panic_handler = @import("panic_handler.zig");
-
-pub var gamePtr: *Game = undefined;
+const pdapi = @import("playdate").pdapi;
+const panic_handler = @import("playdate").panic_handler;
+const Game = @import("game");
 
 pub export fn eventHandler(playdate: *pdapi.PlaydateAPI, event: pdapi.PDSystemEvent, arg: u32) callconv(.C) c_int {
     _ = arg;
@@ -28,7 +26,7 @@ pub export fn eventHandler(playdate: *pdapi.PlaydateAPI, event: pdapi.PDSystemEv
                 ),
             );
             game.* = Game.init(playdate);
-            gamePtr = game;
+            //            gamePtr = game;
             playdate.system.setUpdateCallback(update_and_render, game);
         },
         else => {},
