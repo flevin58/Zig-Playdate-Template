@@ -3,6 +3,24 @@
 ## Overview
 Write your [Playdate](https://play.date) game in [Zig](https://ziglang.org)!  Use this template as a starting point to write your games in Zig.  The `build.zig` will allow you to generate a Playdate `.pdx` executable that will work both in the simulator and on hardware.
 
+## Cloning this template to a new git repo for your game
+1. Open Terminal.
+
+2. Create a bare clone of the repository:
+    ```git clone --bare https://github.com/flevin58/Zig-Playdate-Template.git```
+3. Create your new empty repo on github, say [https://github.com/yourname/yourgame.git](#)
+4. Modify src/game.zig and add any other files to your game. Remember that Game.init() and Game.update() will be automatically called by the Playdate.
+5. Mirror-push to the new repository:
+```
+    cd Zig-Playdate-Template
+    git push --mirror https://github.com/yourname/yourgame.git
+```
+6. Remove the temporary local repository you cloned earlier:
+```
+    cd ..
+    rm -rf Zig-Playdate-Template
+```
+
 ## Things To Be Aware Of
 - Not Everything Has Been Tested
     - With `zig translate-c` and a bunch of customization by hand, I converted the C API of the Playdate SDK to Zig.  While I have battle tested a lot of the APIs in my upcoming Pictoblox game and in my [port of UPWARD](https://github.com/DanB91/Upward-for-Playdate), there is much of the API here that has not been tested -- especially, the Sprite, JSON, Synth, and Sound Effect APIs.  If something isn't working, please check against the headers in the Playdate SDK C API and make sure the APIs match. Please open a bug report if the APIs don't match.
