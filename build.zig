@@ -117,14 +117,31 @@ pub fn build(b: *std.Build) !void {
     const run_cmd = b.addSystemCommand(&.{pd_simulator_path});
     run_cmd.addDirectoryArg(pdx);
     run_cmd.setName("PlaydateSimulator");
-    const run_step = b.step("run", "Run the app");
+    const run_step = b.step("run", "Run the app in the Playdate Simulator");
     run_step.dependOn(&run_cmd.step);
     run_step.dependOn(b.getInstallStep());
+
+    // Custom build command: Config VSCode only on demand (by zig build configure)
+    const config_step = b.step("config", "Configures VSCode launch & tasks with defaults");
+    config_step.makeFn = installVSCodeJsonFiles;
 
     const clean_step = b.step("clean", "Clean all artifacts");
     clean_step.dependOn(&b.addRemoveDirTree(b.path("zig-cache")).step);
     clean_step.dependOn(&b.addRemoveDirTree(b.path(".zig-cache")).step);
     clean_step.dependOn(&b.addRemoveDirTree(b.path("zig-out")).step);
+}
+
+fn installVSCodeJsonFiles(step: *std.Build.Step, options: std.Build.Step.MakeOptions) anyerror!void {
+    _ = options;
+    const b = step.owner;
+    const cwd = std.fs.cwd();
+    cwd.makeDir(".vscode") catch {};
+    try cwd.copyFile("vs-code-launch-config/tasks.json", cwd, ".vscode/tasks.json", .{});
+    const opsys_name = @tagName(builtin.target.os.tag);
+    const source_file = try std.fmt.allocPrint(b.allocator, "vs-code-launch-config/launch.{s}.json", .{opsys_name});
+    cwd.copyFile(source_file, cwd, ".vscode/launch.json", .{}) catch |err| {
+        try step.addError("Could not copy '{s}': {}", .{ source_file, err });
+    };
 }
 
 //The purpose of this function is a result of:
